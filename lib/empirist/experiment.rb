@@ -33,7 +33,7 @@ module Empirist
 		end
 
 		def configure_report
-			@report.add_writer(@report.create_csv_writer("#{trial_name}-%{stream}.csv"))
+			@report.add_writer(@report.create_csv_writer("#{@data_folder}/#{trial_name}-%{stream}.csv"))
 		end
 
 		def parse_command_line
@@ -71,11 +71,11 @@ module Empirist
 		end
 
 		def trials
-			@@trials
-		end
+			@@trials 
+		end 
 
 		def set_success
-			trials.find(:__id => @trial_id)
+			trials.update({"_id" => @trial_id}, {"$set" => {"__success" => 1}})
 		end
 
 		def trial_name
@@ -101,6 +101,8 @@ module Empirist
 			end
 
 			@report.finish
+
+			set_success
 
 			self
 		end

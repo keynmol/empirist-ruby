@@ -1,12 +1,13 @@
-# Empirist::Ruby
+# Ruby interface for Empirist
 
-TODO: Write a gem description
+See https://github.com/keynmol/empirist for more details
+
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'empirist-ruby'
+    gem 'empirist'
 
 And then execute:
 
@@ -14,7 +15,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install empirist-ruby
+    $ gem install empirist
 
 ## Usage
 
