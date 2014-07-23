@@ -33,7 +33,7 @@ module Empirist
 			end
 
 			def finish
-				@open_files.map {|o| o[:file].close}
+				@open_files.map {|_,v| v[:file].close}
 			end
 		end
 	end

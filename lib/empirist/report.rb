@@ -11,11 +11,15 @@ module Empirist
 
 
 		def finish
-
+			@writers.map &:finish
 		end
 
 		def add_writer(writer)
 			@writers<<writer
+		end
+
+		def streams_names
+			@streams.keys
 		end
 
 		def observation(stream, data)

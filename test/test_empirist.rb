@@ -1,6 +1,5 @@
 require 'test/unit'
 require 'empirist'
-require 'fakefs'
 require 'csv'
 
 class TestExperiment < Empirist::Experiment
@@ -26,14 +25,7 @@ end
 
 class EmpiristTest < Test::Unit::TestCase
   def test_init
-    trial=TestExperiment.new("asdasd").execute
-
-    assert File.exist?("#{trial.trial_name}-default.csv")
-
-    ::CSV.foreach("#{trial.trial_name}-default.csv") do |row|
-        # TODO: fix the tests
-      end
-
+    trial=TestExperiment.new("asdasd", agent: "localhost:5050").execute
   end
 
  

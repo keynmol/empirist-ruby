@@ -7,23 +7,23 @@ module Empirist
 
 		attr_reader :trial_name, :trial_id
 
-		@@client=::Mongo::MongoClient.new("localhost")
-		@@db=@@client.db("empirist")
-		@@trials=@@db["trials"]
+		def initialize(description="", opts={})
+			agent_string=(opts[:agent] || "localhost:5050").split(":")
 
+			agent_host, agent_port=agent_string
 
+			@agent=Agent.new(agent_host, agent_port)
 
-		def initialize(description="")
 			@experiment_name=self.class
 			@streams={}
-			@namespace="Mess"
+			@project="Mess"
 			@report=Report.new()
 			@trial_name=nil
 			@parser=OptionParser.new
 			@parameters={}
 			@add_run=true
 			@runs=1
-			@data_folder="."
+			@data_folder=@agent.local_cache_folder
 
 			@parser.banner="Usage: #{@experiment_name}.rb ...arguments..."
 
@@ -38,10 +38,10 @@ module Empirist
 
 		def parse_command_line
 			if @add_run
-				@parameters[:Runs]=@runs
+				@parameters[:runs]=@runs
 				@report.add_parameter(:Run,0)
 				@parser.on("--runs VALUE", Integer) do |value|
-					@parameters[:Runs]=value
+					@parameters[:runs]=value
 				end
 			end
 
@@ -70,24 +70,19 @@ module Empirist
 			end
 		end
 
-		def trials
-			@@trials 
-		end 
-
-		def set_success
-			trials.update({"_id" => @trial_id}, {"$set" => {"__success" => 1}})
-		end
-
 		def trial_name
 			unless @trial_name
 				options=@parameters.marshal_dump
 				options['__timestamp']=Time.now
-				options['__namespace']=@namespace
+				options['__project']=@project
 				options['__experiment']=@experiment_name.to_s
 				options['__success']=0
 
-				@trial_id=trials.insert(options)
-				@trial_name=@namespace+"-"+@experiment_name.to_s+"-"+@trial_id.to_s
+				# @trial_id=trials.insert(options)
+				# @trial_name=@project+"-"+@experiment_name.to_s+"-"+@trial_id.to_s
+
+				@trial_id=@agent.create_trial(options)
+				@trial_name=@trial_id.to_s
 			end
 
 			@trial_name
@@ -102,7 +97,9 @@ module Empirist
 
 			@report.finish
 
-			set_success
+			@agent.set_success
+			@agent.upload_data @report.streams_names
+
 
 			self
 		end
