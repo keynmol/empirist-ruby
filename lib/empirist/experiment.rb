@@ -5,7 +5,7 @@ require 'ostruct'
 module Empirist
 	class Experiment
 
-		attr_reader :trial_name, :trial_id
+		attr_reader :trial_name, :trial_id, :parameters
 
 		def initialize(description="", opts={})
 			agent_string=(opts[:agent] || "localhost:5050").split(":")
@@ -53,11 +53,15 @@ module Empirist
 			@parameters=OpenStruct.new(@parameters)
 		end
 
+		def convert_class(old)
+			old==Fixnum ? Integer : old
+		end
+
 		
 
 		def add_parameter(name, default=nil)
 			@parameters[name.to_sym]=default
-			cls=default.nil? ? Integer : default.class
+			cls=default.nil? ? Integer : convert_class(default.class)
 			if cls==Array
 				if default.length > 0
 					el_cls=default[0].class
@@ -69,7 +73,7 @@ module Empirist
 				param_template="value"
 			end
 
-			@parser.on("--#{name} #{param_template}", default.nil? ? Integer : default.class) do |value|
+			@parser.on("--#{name} #{param_template}", cls) do |value|
 				@parameters[name.to_sym]=value
 			end
 		end

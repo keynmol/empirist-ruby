@@ -6,6 +6,7 @@ class TestExperiment < Empirist::Experiment
   def configure
     add_parameter("weights", [5,5])
     add_parameter("mutation_rate", 0.1)
+    add_parameter "epochs", 1000
 
 
     data_stream(["Error", "PopulationSize"])

@@ -29,8 +29,8 @@ module Empirist
 			raise "Trial hasn't been created yet" if @trial_id.nil?
 			
 			streams_names.each do |stream|
+				datafile=File.join(@local_cache_folder, "#{trial_id}-#{stream}.csv")
 				if File.exists?(datafile)
-					datafile=File.join(@local_cache_folder, "#{trial_id}-#{stream}.csv")
 					puts "uploading path: #{datafile}, filesize: #{File.size(datafile)}" 
 					params={file: Faraday::UploadIO.new(datafile, 'text/csv'),
 							data_stream: stream,
