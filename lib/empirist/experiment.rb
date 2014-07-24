@@ -32,6 +32,10 @@ module Empirist
 			configure_report
 		end
 
+		def project_name new_name
+			@project=new_name
+		end
+
 		def configure_report
 			@report.add_writer(@report.create_csv_writer("#{@data_folder}/#{trial_name}-%{stream}.csv"))
 		end
@@ -72,7 +76,7 @@ module Empirist
 
 		def trial_name
 			unless @trial_name
-				options=@parameters.marshal_dump
+				options=Hash[@parameters.marshal_dump.map{|k,v| [k, v.to_s]}]
 				options['__timestamp']=Time.now
 				options['__project']=@project
 				options['__experiment']=@experiment_name.to_s
@@ -102,6 +106,15 @@ module Empirist
 
 
 			self
+		end
+
+		def pre_experiment
+		end
+
+		def post_experiment
+		end
+
+		def experiment
 		end
 
 		def add_state(name, value)
