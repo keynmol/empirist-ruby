@@ -18,13 +18,23 @@ module Empirist
 			@writers<<writer
 		end
 
+		def get_parameter(name)
+			@parameters[name]
+		end
+
 		def streams_names
 			@streams.keys
+		end
+
+		def change_state(pname, value)
+			@parameters[pname]=value
 		end
 
 		def observation(stream, data)
 			flat=[]
 			hash={}
+
+			raise "Unknown stream '#{stream}'" unless @streams.has_key?(stream)
 
 			scheme=@streams[stream].scheme
 
@@ -44,16 +54,21 @@ module Empirist
 				end
 			end
 
+			melt=[]
+
 			if data.is_a?(Array)
 				scheme.each_with_index do |field, index|
 					datum=data[index].is_a?(Array) ? data[index] : [data[index]]
-					indexes=(0..datum.length).to_a.map(&:to_s)
-					indexes[0]=""
+					indexes=(1..datum.length+1).to_a.map(&:to_s)
+					
+					if datum.length==1 and !@streams[stream].melted? field
+						indexes[0]=""
+					end
+
 					datum.zip(indexes).each {|value, index|
 						flat <<["#{field}#{index}".to_sym, value]
 						hash["#{field}#{index}".to_sym]=value
 					}
-
 				end
 			end
 

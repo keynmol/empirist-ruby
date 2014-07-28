@@ -1,6 +1,6 @@
-require 'mongo'
 require 'optparse'
 require 'ostruct'
+require 'ruby-progressbar'
 
 module Empirist
 	class Experiment
@@ -40,12 +40,12 @@ module Empirist
 			@report.add_writer(@report.create_csv_writer("#{@data_folder}/#{trial_name}-%{stream}.csv"))
 		end
 
-		def parse_command_line
+		def parse_command_line  
 			if @add_run
 				@parameters[:runs]=@runs
 				@report.add_parameter(:Run,0)
 				@parser.on("--runs VALUE", Integer) do |value|
-					@parameters[:runs]=value
+					@parameters[:runs]=value 
 				end
 			end
 
@@ -97,10 +97,17 @@ module Empirist
 		end
 
 		def execute
-			@runs.times do |run_number|
+			p=ProgressBar.create( :format  => '%a %b>%i %p%% %t',
+                    :progress_mark  => ' ',
+                    :remainder_mark => '.',
+                    :total => parameters.runs)
+
+			parameters.runs.times do |run_number|
+				@report.change_state(:Run, run_number) if @add_run
 				pre_experiment
 				experiment
 				post_experiment
+				p.increment
 			end
 
 			@report.finish
@@ -124,9 +131,13 @@ module Empirist
 		def add_state(name, value)
 			@report.add_parameter(name, value)
 		end
+
+		def get_state(name)
+			@report.parameters[name]
+		end
 		
-		def data_stream(scheme, name="default")
-			@report.add_stream(name, DataStream.new(scheme))
+		def data_stream(scheme, name="default", parameters={})
+			@report.add_stream(name, DataStream.new(scheme, parameters))
 		end
 
 		def observation(data, stream="default")

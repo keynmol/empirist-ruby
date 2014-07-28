@@ -31,7 +31,7 @@ module Empirist
 			streams_names.each do |stream|
 				datafile=File.join(@local_cache_folder, "#{trial_id}-#{stream}.csv")
 				if File.exists?(datafile)
-					puts "uploading path: #{datafile}, filesize: #{File.size(datafile)}" 
+					puts "uploading stream: #{stream}, filesize: #{File.size(datafile)}" 
 					params={file: Faraday::UploadIO.new(datafile, 'text/csv'),
 							data_stream: stream,
 							trial_id: trial_id}
