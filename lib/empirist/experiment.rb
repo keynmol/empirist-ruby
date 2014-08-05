@@ -24,6 +24,8 @@ module Empirist
 			@add_run=true
 			@runs=1
 			@data_folder=@agent.local_cache_folder
+			@stages=0
+			@stage=1
 
 			@parser.banner="Usage: #{@experiment_name}.rb ...arguments..."
 
@@ -56,6 +58,7 @@ module Empirist
 		def convert_class(old)
 			old==Fixnum ? Integer : old
 		end
+
 
 		
 
@@ -96,18 +99,27 @@ module Empirist
 			@trial_name
 		end
 
+
+
+
 		def execute
+			@progress=0
 			p=ProgressBar.create( :format  => '%a %b>%i %p%% %t',
                     :progress_mark  => ' ',
                     :remainder_mark => '.',
                     :total => parameters.runs)
-
+			@agent.update_progress(0.0)
 			parameters.runs.times do |run_number|
 				@report.change_state(:Run, run_number) if @add_run
+				@current_run=run_number
+				
 				pre_experiment
 				experiment
 				post_experiment
+				
 				p.increment
+
+				@agent.update_progress(100*(p.progress.to_f/p.total))
 			end
 
 			@report.finish

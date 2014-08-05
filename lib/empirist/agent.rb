@@ -45,5 +45,9 @@ module Empirist
 		def set_success
 			@server_connection.post '/set_success', {trial_id: trial_id}
 		end
+
+		def update_progress(value)
+			@server_connection.post '/update_progress', {trial_id: trial_id, progress: value}
+		end
 	end
 end
